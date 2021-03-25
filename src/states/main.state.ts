@@ -10,6 +10,7 @@ export default class MainState extends State {
   sky: Phaser.Sprite; // Reference to background sprite
   dude: Phaser.Sprite;
   player: Phaser.Sprite;
+  droid: Phaser.Sprite;
   platforms: Phaser.Group; // Reference to the group of platform's sprites
   stars: Phaser.Group;
   bombs: Phaser.Group;
@@ -17,11 +18,15 @@ export default class MainState extends State {
  
 	scoreText;
 	score;
+	sideDroid;
+	
 	 // ssome variable for score 
 	//score: Phaser.Char;
 	//scoreText: Phaser.Char; 	
 	
   create(): void {
+
+	this.sideDroid = true;
 
     // Phaser supports some physical engines (p2, box2d, ninja and arcate).
     // For our game, we don't need a strong physical simulation, so we'll choose
@@ -100,7 +105,7 @@ export default class MainState extends State {
 	//const player = this.game.add.sprite(100, 450, 'dude');
 	
     // The player and its settings
-    this.player = this.game.add.sprite(32, this.game.world.height - 150, 'dude');
+    this.player = this.game.add.sprite(32, this.game.world.height - 130, 'dude');
 
     //  We need to enable physics on the player
     this.game.physics.arcade.enable(this.player);
@@ -114,6 +119,15 @@ export default class MainState extends State {
     this.player.animations.add('left', [0, 1, 2, 3], 10, true);
     this.player.animations.add('right', [5, 6, 7, 8], 10, true);
 	//this.player.animations.add('destroy', [5], 5, true);
+
+    this.droid = this.game.add.sprite(0, 0, 'droid'); //this.game.world.height - 130, 'droid');
+	this.game.physics.arcade.enable(this.droid);
+    this.droid.body.bounce.y = 0.2;
+    this.droid.body.gravity.y = 300;
+    this.droid.body.collideWorldBounds = true;
+    this.droid.animations.add('left', [0, 1, 2, 3], 10, true);
+    this.droid.animations.add('right', [3, 2, 1, 0], 10, true);
+
 
 	// some STARS
     this.stars = this.game.add.group();
@@ -166,12 +180,26 @@ export default class MainState extends State {
 		var hitPlatform = this.game.physics.arcade.collide(this.player, this.platforms);
 		var hitPlatform2 = this.game.physics.arcade.collide(this.stars, this.platforms);
 		var hitPlatform3 = this.game.physics.arcade.collide(this.bombs, this.platforms);
+		var hitPlatform4 = this.game.physics.arcade.collide(this.droid, this.platforms);
 		
 		// use collides
 		this.game.physics.arcade.overlap(this.player, this.stars, this.collectStar, null, this);
 		this.game.physics.arcade.overlap(this.player, this.bombs, this.findBomb, null, this);
 		
-
+		
+		if(this.sideDroid == true){
+			this.droid.x += 2;
+			this.droid.animations.play('right');
+			if(this.droid.x >= (this.game.world.width-32)){
+				this.sideDroid = false;
+			} 
+		}else{
+			this.droid.x -= 2;
+			this.droid.animations.play('left');
+			if(this.droid.x <= 0){
+				this.sideDroid = true;
+			} 
+		}
 
 		//  Reset the players velocity (movement)
 		this.player.body.velocity.x = 0;
