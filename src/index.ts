@@ -32,7 +32,7 @@ if (!module.parent) {
   window.onload = () => {
     const config: Phaser.IGameConfig = {
       width:           800, // width of canvas
-      height:          600, // height of canvas
+      height:          400, // height of canvas
       renderer:        Phaser.AUTO, // rendering context. The recommended parameter is Phaser.AUTO
       parent:          '',
       resolution:      1,

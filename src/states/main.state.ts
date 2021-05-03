@@ -15,10 +15,16 @@ export default class MainState extends State {
   stars: Phaser.Group;
   bombs: Phaser.Group;
   cursors: Phaser.CursorKeys;
+  jumpButton: Phaser.CursorKeys;
  
 	scoreText;
 	score;
 	sideDroid;
+	map;
+	bg;
+	layer;
+	jumpTimer;
+	
 	
 	 // ssome variable for score 
 	//score: Phaser.Char;
@@ -27,7 +33,8 @@ export default class MainState extends State {
   create(): void {
 
 	this.sideDroid = true;
-
+	this.jumpTimer = 0;
+	
     // Phaser supports some physical engines (p2, box2d, ninja and arcate).
     // For our game, we don't need a strong physical simulation, so we'll choose
     // `arcade` model.
@@ -39,8 +46,53 @@ export default class MainState extends State {
 	//const boxMaterial = this.game.physics.p2.createMaterial('worldMaterial');
 
     // Add a simple background
-    this.sky = this.game.add.sprite(0, 0, 'sky');
+    //this.sky = this.game.add.sprite(0, 0, 'sky');
 
+	// EXPERIMANTS I
+    this.bg = this.game.add.tileSprite(0, 0, 800, 400, 'sky');
+    this.bg.fixedToCamera = true;	
+	this.game.stage.backgroundColor = '#000000';
+    this.map = this.game.add.tilemap('level5');
+    this.map.addTilesetImage('tiles-1');
+	this.map.setCollisionByExclusion([ 13, 14, 15, 16, 46, 47, 48, 49, 50, 51 ]);
+    this.layer = this.map.createLayer('Tile Layer 1');
+    this.layer.resizeWorld();
+    this.game.physics.arcade.gravity.y = 150;
+	
+    // The player and its settings
+    this.player = this.game.add.sprite(32, 0, 'dude');
+
+    //  We need to enable physics on the player
+	this.game.physics.arcade.enable(this.player);	
+	this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
+	
+    //  Player physics properties. Give the little guy a slight bounce.
+    this.player.body.bounce.y = 0.2;
+    this.player.body.gravity.y = 800;
+    this.player.body.collideWorldBounds = true;
+	this.player.body.setSize(20, 32, 5, 16);
+
+    //  Our two animations, walking left and right.
+    this.player.animations.add('left', [0, 1, 2, 3], 10, true);
+    this.player.animations.add('right', [5, 6, 7, 8], 10, true);
+	this.player.animations.add('turn', [4], 20, true);
+
+	
+	this.game.camera.follow(this.player);
+	
+/*	this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
+
+    this.player.body.bounce.y = 0.2;
+    this.player.body.collideWorldBounds = true;
+    this.player.body.setSize(20, 32, 5, 16);
+
+    this.player.animations.add('left', [0, 1, 2, 3], 10, true);
+    this.player.animations.add('turn', [4], 20, true);
+    this.player.animations.add('right', [5, 6, 7, 8], 10, true);
+
+    this.game.camera.follow(this.player);*/
+	
+/*
     // Also we create a group for platforms
     this.platforms = this.game.add.group();
 
@@ -119,7 +171,8 @@ export default class MainState extends State {
     this.player.animations.add('left', [0, 1, 2, 3], 10, true);
     this.player.animations.add('right', [5, 6, 7, 8], 10, true);
 	//this.player.animations.add('destroy', [5], 5, true);
-
+*/
+	// add animate droid
     this.droid = this.game.add.sprite(0, 0, 'droid'); //this.game.world.height - 130, 'droid');
 	this.game.physics.arcade.enable(this.droid);
     this.droid.body.bounce.y = 0.2;
@@ -128,7 +181,7 @@ export default class MainState extends State {
     this.droid.animations.add('left', [0, 1, 2, 3], 10, true);
     this.droid.animations.add('right', [3, 2, 1, 0], 10, true);
 
-
+/*
 	// some STARS
     this.stars = this.game.add.group();
 
@@ -143,7 +196,7 @@ export default class MainState extends State {
         //  Let gravity do its thing
         star.body.gravity.y = 136;
 
-        //  This just gives each star a slightly random bounce value
+,        //  This just gives each star a slightly random bounce value
         star.body.bounce.y = 0.7 + Math.random() * 0.2;
     }	
 
@@ -168,14 +221,18 @@ export default class MainState extends State {
 
 	this.scoreText = this.game.add.text(16, 16, 'Score: 0$', { fontSize: '32px', fill: '#000' });
 	this.score = 0;
-	
+	*/
 	// keys controll
 	this.cursors = this.game.input.keyboard.createCursorKeys();
-
+	//this.jumpButton = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   }
   
 	update(): void {
-		//bmd.context.fillStyle = '#ffff00';
+		var hitPlatform = this.game.physics.arcade.collide(this.player, this.layer);
+		var hitPlatform1 = this.game.physics.arcade.collide(this.droid, this.layer);
+//		console.log("hitPlatform: " + hitPlatform);
+//		console.log("this.player.body.touching.down: " + this.player.body.touching.down);
+/*		//bmd.context.fillStyle = '#ffff00';
 		//bmd.context.fillRect(sprite.x, sprite.y, 2, 2);
 		var hitPlatform = this.game.physics.arcade.collide(this.player, this.platforms);
 		var hitPlatform2 = this.game.physics.arcade.collide(this.stars, this.platforms);
@@ -186,34 +243,35 @@ export default class MainState extends State {
 		this.game.physics.arcade.overlap(this.player, this.stars, this.collectStar, null, this);
 		this.game.physics.arcade.overlap(this.player, this.bombs, this.findBomb, null, this);
 		
-		
+*/		
 		if(this.sideDroid == true){
 			this.droid.x += 2;
-			this.droid.animations.play('right');
+			//this.droid.animations.play('right');
 			if(this.droid.x >= (this.game.world.width-32)){
 				this.sideDroid = false;
 			} 
 		}else{
 			this.droid.x -= 2;
-			this.droid.animations.play('left');
+			//this.droid.animations.play('left');
 			if(this.droid.x <= 0){
 				this.sideDroid = true;
 			} 
 		}
-
+/*
+*/
 		//  Reset the players velocity (movement)
 		this.player.body.velocity.x = 0;
 
 		if (this.cursors.left.isDown)
 		{
 			//  Move to the left
-			this.player.body.velocity.x = -150;
+			this.player.body.velocity.x = -200;
 			this.player.animations.play('left');
 		}
 		else if (this.cursors.right.isDown)
 		{
 			//  Move to the right
-			this.player.body.velocity.x = 150;
+			this.player.body.velocity.x = 200;
 			this.player.animations.play('right');
 		}
 		else
@@ -224,10 +282,17 @@ export default class MainState extends State {
 		}
 
 		//  Allow the player to jump if they are touching the ground.
-		if (this.cursors.up.isDown && this.player.body.touching.down && hitPlatform)
+		//if (this.cursors.up.isDown && this.player.body.touching.down && hitPlatform)
+		/*if ( && hitPlatform)
 		{
 			this.player.body.velocity.y = -350;
 		}		
+		*/
+		if (this.cursors.up.isDown && this.player.body.onFloor() && this.game.time.now > this.jumpTimer)
+		{
+			this.player.body.velocity.y = -550;
+			this.jumpTimer = this.game.time.now + 750;
+		}
 		
 	}
 	
